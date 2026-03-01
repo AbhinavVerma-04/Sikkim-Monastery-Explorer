@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { MapPin, Star, ChevronRight } from 'lucide-react'
 import { api, getErrorMessage } from '../api'
@@ -7,14 +7,25 @@ import { Layout } from '../components/Layout'
 import { SkeletonCard } from '../components/SkeletonCard'
 
 export default function Explore() {
+  const [searchParams] = useSearchParams()
   const [monasteries, setMonasteries] = useState([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [region, setRegion] = useState('all')
+  const [search, setSearch] = useState(searchParams.get('search') || '')
+  const [debouncedSearch, setDebouncedSearch] = useState(searchParams.get('search') || '')
+  const [region, setRegion] = useState(searchParams.get('region') || 'all')
   const [age, setAge] = useState('')
   const [sortBy, setSortBy] = useState('name')
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState(null)
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search)
+      setPage(1)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [search])
 
   useEffect(() => {
     let cancelled = false
@@ -22,7 +33,7 @@ export default function Explore() {
       setLoading(true)
       try {
         const params = new URLSearchParams({ page, limit: 12, sortBy })
-        if (search.trim()) params.set('search', search.trim())
+        if (debouncedSearch.trim()) params.set('search', debouncedSearch.trim())
         if (region && region !== 'all') params.set('region', region)
         if (age) params.set('age', age)
         const { data } = await api.get(`/monasteries?${params}`)
@@ -41,7 +52,7 @@ export default function Explore() {
     }
     fetchList()
     return () => { cancelled = true }
-  }, [page, region, age, sortBy, search])
+  }, [page, region, age, sortBy, debouncedSearch])
 
   const handleSearch = (e) => {
     e.preventDefault()

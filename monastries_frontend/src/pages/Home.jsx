@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   MapPin,
   Mountain,
@@ -36,6 +36,15 @@ const EXPERIENCE = [
 export default function Home() {
   const [search, setSearch] = useState('')
   const [region, setRegion] = useState('all')
+  const navigate = useNavigate()
+
+  const handleExplore = (e) => {
+    e.preventDefault()
+    const params = new URLSearchParams()
+    if (search.trim()) params.set('search', search.trim())
+    if (region && region !== 'all') params.set('region', region)
+    navigate(`/explore${params.toString() ? '?' + params.toString() : ''}`)
+  }
 
   return (
     <Layout noHero>
@@ -59,7 +68,7 @@ export default function Home() {
           </p>
           <div className="mt-8 sm:mt-10 max-w-2xl">
             <div className="glass rounded-2xl p-4 sm:p-5 shadow-2xl">
-              <div className="flex flex-col sm:flex-row gap-3">
+              <form onSubmit={handleExplore} className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1 relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500/70" />
                   <input
@@ -81,13 +90,13 @@ export default function Home() {
                   <option value="North Sikkim">North Sikkim</option>
                   <option value="South Sikkim">South Sikkim</option>
                 </select>
-                <Link
-                  to="/explore"
+                <button
+                  type="submit"
                   className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-rose-700 text-stone-900 font-semibold text-sm hover:brightness-110 transition shadow-lg flex items-center justify-center gap-2"
                 >
                   Explore <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
+                </button>
+              </form>
             </div>
           </div>
         </div>
