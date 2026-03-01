@@ -91,7 +91,7 @@ export default function Home() {
 
       <section className="border-y border-amber-900/40 bg-stone-950/90 py-6 sm:py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 text-center">
-          <ScrollReveal><div><p className="font-heading text-3xl sm:text-4xl font-bold text-amber-400"><AnimatedCounter end={8} suffix="+" /></p><p className="text-xs sm:text-sm text-stone-400 mt-1">Curated monasteries</p></div></ScrollReveal>
+          <ScrollReveal><div><p className="font-heading text-3xl sm:text-4xl font-bold text-amber-400"><AnimatedCounter end={monasteries.length || 0} suffix="+" /></p><p className="text-xs sm:text-sm text-stone-400 mt-1">Curated monasteries</p></div></ScrollReveal>
           <ScrollReveal delay={0.1}><div><p className="font-heading text-3xl sm:text-4xl font-bold text-amber-400"><AnimatedCounter end={4} /></p><p className="text-xs sm:text-sm text-stone-400 mt-1">Regions of Sikkim</p></div></ScrollReveal>
           <ScrollReveal delay={0.2}><div><p className="font-heading text-3xl sm:text-4xl font-bold text-amber-400"><AnimatedCounter end={300} suffix="+" /></p><p className="text-xs sm:text-sm text-stone-400 mt-1">Years of history</p></div></ScrollReveal>
           <ScrollReveal delay={0.3}><div><p className="font-heading text-3xl sm:text-4xl font-bold text-amber-400"><AnimatedCounter end="∞" /></p><p className="text-xs sm:text-sm text-stone-400 mt-1">Moments of peace</p></div></ScrollReveal>
@@ -120,7 +120,10 @@ export default function Home() {
                     </div>
                     <div className="absolute bottom-3 left-3 right-3">
                       <h4 className="font-heading text-xl sm:text-2xl font-bold text-amber-50">{m.name}</h4>
-                      <p className="text-stone-400 text-xs sm:text-sm flex items-center gap-1 mt-1"><MapPin className="w-3.5 h-3.5" /> {m.region} · Est. {m.established}</p>
+                      <p className="text-stone-400 text-xs sm:text-sm flex items-center gap-1 mt-1">
+                        <MapPin className="w-3.5 h-3.5" /> 
+                        {m.region || (m.location?.district || m.location?.village || m.location)} · Est. {m.established || 'N/A'}
+                      </p>
                     </div>
                   </div>
                   <div className="p-4 flex items-center justify-between">

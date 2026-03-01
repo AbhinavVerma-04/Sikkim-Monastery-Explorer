@@ -121,7 +121,10 @@ export default function Explore() {
                     </div>
                     <div className="absolute bottom-3 left-3 right-3">
                       <h4 className="font-heading text-xl font-bold text-amber-50">{m.name}</h4>
-                      <p className="text-stone-400 text-xs sm:text-sm flex items-center gap-1 mt-1"><MapPin className="w-3.5 h-3.5" /> {m.region} · Est. {m.established}</p>
+                      <p className="text-stone-400 text-xs sm:text-sm flex items-center gap-1 mt-1">
+                        <MapPin className="w-3.5 h-3.5" /> 
+                        {m.region || (m.location?.district || m.location?.village || m.location)} · Est. {m.established || 'N/A'}
+                      </p>
                     </div>
                   </div>
                   <div className="p-4 flex items-center justify-between">

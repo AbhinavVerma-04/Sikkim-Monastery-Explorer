@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { MapPin, Star, Calendar, Hotel, Compass, BookOpen } from 'lucide-react'
+import { MapPin, Star, Calendar, Hotel, Compass, BookOpen, Users, Church, Sparkles, Mountain, Clock, AlertTriangle } from 'lucide-react'
 import { api, getErrorMessage } from '../api'
 import { useAuth } from '../context/AuthContext'
 import { validateBooking } from '../utils/validation'
@@ -99,8 +99,42 @@ export default function MonasteryDetail() {
           </div>
           <div className="p-6 sm:p-8">
             <h1 className="font-heading text-3xl sm:text-4xl font-bold text-amber-50">{monastery.name}</h1>
-            <p className="text-stone-400 mt-1 flex items-center gap-1"><MapPin className="w-4 h-4" /> {monastery.location}</p>
+            <p className="text-stone-400 mt-1 flex items-center gap-1">
+              <MapPin className="w-4 h-4" /> 
+              {monastery.location?.district || monastery.location?.village || monastery.location}
+              {monastery.location?.state && `, ${monastery.location.state}`}
+            </p>
+            
+            {monastery.link && (
+              <a href={monastery.link} target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 text-sm mt-1 inline-flex items-center gap-1">
+                <BookOpen className="w-3 h-3" /> Wikipedia Article
+              </a>
+            )}
+            
             <p className="mt-4 text-stone-300 leading-relaxed">{monastery.description}</p>
+            
+            {/* Quick Info */}
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+              {monastery.established && (
+                <div><p className="text-stone-500">Established</p><p className="text-amber-100 font-medium">{monastery.established}</p></div>
+              )}
+              {monastery.foundedBy && (
+                <div><p className="text-stone-500">Founded By</p><p className="text-amber-100 font-medium">{monastery.foundedBy}</p></div>
+              )}
+              {monastery.sect && (
+                <div><p className="text-stone-500">Sect</p><p className="text-amber-100 font-medium">{monastery.sect}</p></div>
+              )}
+              {monastery.monks && (
+                <div><p className="text-stone-500 flex items-center gap-1"><Users className="w-3 h-3" /> Monks</p><p className="text-amber-100 font-medium">{monastery.monks}</p></div>
+              )}
+              <div><p className="text-stone-500">Opening</p><p className="text-amber-100 font-medium">{monastery.openingHours || '—'}</p></div>
+              <div><p className="text-stone-500">Entry</p><p className="text-amber-100 font-medium">{monastery.entryFee || 'Free'}</p></div>
+              <div><p className="text-stone-500">Best time</p><p className="text-amber-100 font-medium">{monastery.bestTimeToVisit || '—'}</p></div>
+              {monastery.altitude && (
+                <div><p className="text-stone-500 flex items-center gap-1"><Mountain className="w-3 h-3" /> Altitude</p><p className="text-amber-100 font-medium">{monastery.altitude}m</p></div>
+              )}
+            </div>
+            
             <div className="mt-5">
               <Link
                 to={`/monastery/${id}/wiki`}
@@ -110,18 +144,198 @@ export default function MonasteryDetail() {
                 Explore Wikipedia details & nearby hotels
               </Link>
             </div>
+            
             <div className="mt-4 flex flex-wrap gap-2">
               {(monastery.features || []).map((f, i) => (
                 <span key={i} className="px-2.5 py-1 rounded-full bg-amber-900/50 text-amber-100 text-xs border border-amber-700/50">{f}</span>
               ))}
             </div>
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-              <div><p className="text-stone-500">Est.</p><p className="text-amber-100 font-medium">{monastery.established}</p></div>
-              <div><p className="text-stone-500">Opening</p><p className="text-amber-100 font-medium">{monastery.openingHours || '—'}</p></div>
-              <div><p className="text-stone-500">Entry</p><p className="text-amber-100 font-medium">{monastery.entryFee || 'Free'}</p></div>
-              <div><p className="text-stone-500">Best time</p><p className="text-amber-100 font-medium">{monastery.bestTimeToVisit || '—'}</p></div>
-            </div>
           </div>
+        </div>
+
+        {/* Detailed Sections */}
+        <div className="space-y-6 mb-8">
+          
+          {/* History Section */}
+          {monastery.history && Object.keys(monastery.history).length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5" /> History
+              </h2>
+              <div className="space-y-3 text-stone-300">
+                {Object.entries(monastery.history).map(([key, value]) => (
+                  <div key={key}>
+                    <h3 className="text-amber-200 font-semibold text-sm capitalize mb-1">
+                      {key.replace(/([A-Z])/g, ' $1').replace(/(\d+)/g, ' $1').trim()}
+                    </h3>
+                    <p className="text-sm leading-relaxed">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Architecture Section */}
+          {monastery.architecture && Object.keys(monastery.architecture).length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4 flex items-center gap-2">
+                <Church className="w-5 h-5" /> Architecture
+              </h2>
+              <div className="space-y-3 text-stone-300">
+                {monastery.architectureStyle && (
+                  <div>
+                    <p className="text-amber-200 font-semibold text-sm mb-1">Style</p>
+                    <p className="text-sm">{monastery.architectureStyle}</p>
+                  </div>
+                )}
+                {Object.entries(monastery.architecture).map(([key, value]) => {
+                  if (Array.isArray(value)) {
+                    return (
+                      <div key={key}>
+                        <p className="text-amber-200 font-semibold text-sm mb-1 capitalize">
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {value.map((item, i) => (
+                            <li key={i} className="text-sm">{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={key}>
+                      <p className="text-amber-200 font-semibold text-sm mb-1 capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </p>
+                      <p className="text-sm leading-relaxed">{value}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Festivals Section */}
+          {monastery.festivals && monastery.festivals.length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4 flex items-center gap-2">
+                <Sparkles className="w-5 h-5" /> Festivals & Celebrations
+              </h2>
+              <div className="space-y-4">
+                {monastery.festivals.map((festival, i) => (
+                  <div key={i} className="p-4 rounded-xl bg-stone-900/60 border border-amber-900/30">
+                    <h3 className="text-amber-200 font-semibold mb-1">{festival.name}</h3>
+                    <p className="text-stone-300 text-sm leading-relaxed">{festival.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Deities Worshipped */}
+          {monastery.deitiesWorshipped && monastery.deitiesWorshipped.length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4">Deities Worshipped</h2>
+              <div className="flex flex-wrap gap-2">
+                {monastery.deitiesWorshipped.map((deity, i) => (
+                  <span key={i} className="px-3 py-1.5 rounded-lg bg-amber-900/50 text-amber-100 text-sm border border-amber-700/50">
+                    {deity}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Cultural Significance */}
+          {monastery.culturalSignificance && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4">Cultural Significance</h2>
+              <p className="text-stone-300 leading-relaxed">{monastery.culturalSignificance}</p>
+            </section>
+          )}
+
+          {/* Infrastructure */}
+          {monastery.infrastructure && Object.keys(monastery.infrastructure).length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4">Infrastructure & Facilities</h2>
+              <div className="space-y-3 text-stone-300">
+                {Object.entries(monastery.infrastructure).map(([key, value]) => {
+                  if (Array.isArray(value)) {
+                    return (
+                      <div key={key}>
+                        <p className="text-amber-200 font-semibold text-sm mb-1 capitalize">
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {value.map((item, i) => (
+                            <li key={i} className="text-sm">{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={key}>
+                      <p className="text-amber-200 font-semibold text-sm mb-1 capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </p>
+                      <p className="text-sm">{value}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Earthquake Damage / Restoration */}
+          {(monastery.earthquakeDamage || monastery.restoration) && (
+            <section className="glass rounded-2xl p-6 border-l-4 border-amber-600">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" /> Conservation & Restoration
+              </h2>
+              <div className="space-y-3 text-stone-300">
+                {monastery.earthquakeDamage && (
+                  <div>
+                    <p className="text-amber-200 font-semibold text-sm mb-2">Earthquake Damage</p>
+                    {typeof monastery.earthquakeDamage === 'object' ? (
+                      Object.entries(monastery.earthquakeDamage).map(([key, value]) => (
+                        <p key={key} className="text-sm leading-relaxed mb-2">
+                          <span className="font-medium">{key}:</span> {value}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="text-sm leading-relaxed">{monastery.earthquakeDamage}</p>
+                    )}
+                  </div>
+                )}
+                {monastery.restoration && (
+                  <div>
+                    <p className="text-amber-200 font-semibold text-sm mb-2">Restoration</p>
+                    {typeof monastery.restoration === 'object' && monastery.restoration.info ? (
+                      <p className="text-sm leading-relaxed">{monastery.restoration.info}</p>
+                    ) : (
+                      <p className="text-sm leading-relaxed">{monastery.restoration}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {/* Nearby Attractions */}
+          {monastery.nearbyAttractions && monastery.nearbyAttractions.length > 0 && (
+            <section className="glass rounded-2xl p-6">
+              <h2 className="font-heading text-xl font-bold text-amber-50 mb-4">Nearby Attractions</h2>
+              <div className="flex flex-wrap gap-2">
+                {monastery.nearbyAttractions.map((attraction, i) => (
+                  <span key={i} className="px-3 py-1.5 rounded-lg bg-stone-900/60 text-amber-100 text-sm border border-amber-900/40">
+                    {attraction}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
 
         {/* Travel guide */}
