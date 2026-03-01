@@ -1,0 +1,62 @@
+const express = require("express");
+const connectDB = require("./config/database");
+const app = express();
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+require('dotenv').config();
+
+// CORS configuration for frontend
+const allowedOrigins = new Set([
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
+  'http://localhost:5173',
+]);
+
+const corsOptions = {
+  origin(origin, cb) {
+    // Allow same-origin / curl / mobile apps (no Origin header)
+    if (!origin) return cb(null, true);
+    if (allowedOrigins.has(origin)) return cb(null, true);
+    return cb(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+// Explicitly respond to preflight requests for all routes
+app.options(/.*/, cors(corsOptions));
+
+app.use(express.json());
+app.use(cookieParser());
+
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
+const userRouter = require("./routes/user");
+const bookingRouter = require("./routes/booking");
+const monasteryRouter = require("./routes/monastery");
+const travelGuideRouter = require("./routes/travelGuide");
+const contributionRouter = require("./routes/contribution");
+
+app.use("/",authRouter);
+app.use("/",profileRouter);
+app.use("/",requestRouter);
+app.use("/",userRouter);
+app.use("/",bookingRouter);
+app.use("/",monasteryRouter);
+app.use("/",travelGuideRouter);
+app.use("/",contributionRouter);
+
+connectDB()
+    .then(()=>{
+        console.log("Database connection established ...");
+    app.listen(process.env.PORT,()=>{
+    console.log(`Server is successfully running on port ${process.env.PORT} .....`);
+    });
+    })
+    .catch((err) =>{
+        console.error("Database cannot connected!!!!");
+    })
