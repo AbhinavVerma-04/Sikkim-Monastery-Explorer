@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Layout } from '../components/Layout'
-import { MapPin, Clock, CreditCard, Trash2, Edit2, RefreshCw } from 'lucide-react'
+import { MapPin, Clock, CreditCard, Trash2, Edit2, RefreshCw, Plus } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { locationAPI } from '../api'
 import { useAuth } from '../context/AuthContext'
-import AddLocationForm from '../components/AddLocationForm'
 
 export default function MyLocations() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [locations, setLocations] = useState([])
   const [loading, setLoading] = useState(true)
-  const [showAddForm, setShowAddForm] = useState(false)
   const [editingLocation, setEditingLocation] = useState(null)
   const [savingEdit, setSavingEdit] = useState(false)
   const [editForm, setEditForm] = useState({
@@ -214,25 +212,13 @@ export default function MyLocations() {
             <h1 className="text-3xl font-bold text-amber-50">My Business Listings</h1>
             <p className="text-stone-400 mt-2">Manage your locations and subscriptions</p>
           </div>
-          <button
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="px-6 py-3 bg-gradient-to-r from-amber-600 to-rose-600 text-amber-50 rounded-lg font-medium hover:from-amber-500 hover:to-rose-500 transition"
+          <Link
+            to="/list-business"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-rose-600 text-amber-50 rounded-lg font-medium hover:from-amber-500 hover:to-rose-500 transition"
           >
-            + Add New Location
-          </button>
+            <Plus className="w-5 h-5" /> Add New Listing
+          </Link>
         </div>
-
-        {showAddForm && (
-          <div className="mb-8">
-            <AddLocationForm
-              onSuccess={() => {
-                setShowAddForm(false)
-                fetchLocations()
-              }}
-              onClose={() => setShowAddForm(false)}
-            />
-          </div>
-        )}
 
         {loading ? (
           <div className="text-center py-12">
@@ -244,12 +230,12 @@ export default function MyLocations() {
             <MapPin className="w-16 h-16 text-stone-600 mx-auto mb-4" />
             <p className="text-stone-400 text-lg">No listings yet</p>
             <p className="text-stone-500 mt-2">Create your first location listing to get started</p>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="mt-6 px-6 py-3 bg-amber-600 text-amber-50 rounded-lg hover:bg-amber-500 transition"
+            <Link
+              to="/list-business"
+              className="inline-block mt-6 px-6 py-3 bg-amber-600 text-amber-50 rounded-lg hover:bg-amber-500 transition"
             >
               Add Your First Location
-            </button>
+            </Link>
           </div>
         ) : (
           <div className="grid gap-6">
@@ -300,7 +286,11 @@ export default function MyLocations() {
                       <div className="mt-4 p-3 bg-amber-900/10 border border-amber-900/30 rounded-lg">
                         <div className="flex items-center gap-2 text-sm text-amber-200 mb-2">
                           <CreditCard className="w-4 h-4" />
-                          <span>Subscription: ₹{location.subscriptionId.monthlyAmount || 99}/month</span>
+                          <span>Subscription: {
+                            location.subscriptionId.planType === 'annual' ? '₹999/year' :
+                            location.subscriptionId.planType === 'quarterly' ? '₹249/quarter' :
+                            '₹99/month'
+                          }</span>
                         </div>
                         <p className="text-xs text-stone-400">
                           Next renewal: {formatDate(location.subscriptionId.nextRenewalDate)}

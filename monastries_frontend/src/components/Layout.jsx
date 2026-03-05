@@ -34,7 +34,6 @@ export function Layout({ children, noHero }) {
           <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/explore" className="text-sm text-amber-100/90 hover:text-amber-50 transition hidden sm:inline">Explore</Link>
             <Link to="/map" className="text-sm text-amber-100/90 hover:text-amber-50 transition">Map</Link>
-            <Link to="/leaderboard" className="text-sm text-amber-100/90 hover:text-amber-50 transition hidden sm:inline">Leaderboard</Link>
             {isAdmin && (
               <Link to="/admin" className="flex items-center gap-1 text-sm text-amber-400 hover:text-amber-300">
                 <Shield className="w-4 h-4" /> Admin
@@ -46,9 +45,8 @@ export function Layout({ children, noHero }) {
                   <User className="w-4 h-4" /> {user.firstName}
                 </Link>
                 <Link to="/bookings" className="text-sm text-amber-100/90 hover:text-amber-50 hidden sm:inline">Bookings</Link>
-                <Link to="/my-locations" className="text-sm text-amber-100/90 hover:text-amber-50 hidden sm:inline">List Place</Link>
+                <Link to="/my-locations" className="text-sm text-amber-100/90 hover:text-amber-50 hidden sm:inline">My Listings</Link>
                 <Link to="/my-guide-profile" className="text-sm text-amber-100/90 hover:text-amber-50 hidden sm:inline">Guide Profile</Link>
-                <Link to="/my-contributions" className="text-sm text-amber-100/90 hover:text-amber-50 hidden sm:inline">My contributions</Link>
                 <Link to="/contribute" className="text-sm text-amber-100/90 hover:text-amber-50 hidden sm:inline">Contribute</Link>
                 <button onClick={handleLogout} className="flex items-center gap-1 text-sm text-stone-400 hover:text-rose-400 transition">
                   <LogOut className="w-4 h-4" /> Logout

@@ -7,7 +7,7 @@ const { userAuth } = require('../middlewares/auth');
 // Create a new location listing
 locationRouter.post('/location/create', userAuth, async (req, res) => {
     try {
-        const { name, type, description, phone, website, hours, address, coordinates, imageUrl, acceptTerms } = req.body;
+        const { name, type, description, phone, website, hours, address, coordinates, imageUrl, acceptTerms, planType } = req.body;
 
         // Validate required fields
         if (!name || !type || !description || !phone || !address || !coordinates || !imageUrl) {
@@ -28,9 +28,16 @@ locationRouter.post('/location/create', userAuth, async (req, res) => {
             return res.status(400).json({ message: 'Invalid latitude/longitude values' });
         }
 
-        // Create subscription for the location
+        // Calculate renewal date based on plan type
         const nextRenewalDate = new Date();
-        nextRenewalDate.setMonth(nextRenewalDate.getMonth() + 1);
+        const subscriptionPlanType = planType || 'monthly';
+        if (subscriptionPlanType === 'annual') {
+            nextRenewalDate.setFullYear(nextRenewalDate.getFullYear() + 1);
+        } else if (subscriptionPlanType === 'quarterly') {
+            nextRenewalDate.setMonth(nextRenewalDate.getMonth() + 3);
+        } else {
+            nextRenewalDate.setMonth(nextRenewalDate.getMonth() + 1);
+        }
 
         // Create user location with temporary auto-approval
         const userLocation = new UserLocation({
@@ -56,6 +63,7 @@ locationRouter.post('/location/create', userAuth, async (req, res) => {
         const subscription = new LocationSubscription({
             userId: req.user._id,
             locationId: savedLocation._id,
+            planType: subscriptionPlanType,
             autopayDate: new Date().getDate(),
             nextRenewalDate,
             termsAccepted: true,
@@ -87,7 +95,7 @@ locationRouter.post('/location/create', userAuth, async (req, res) => {
 locationRouter.get('/location/my-locations', userAuth, async (req, res) => {
     try {
         const locations = await UserLocation.find({ userId: req.user._id })
-            .populate('subscriptionId', 'isActive nextRenewalDate monthlyAmount subscriptionStatus')
+            .populate('subscriptionId', 'isActive nextRenewalDate monthlyAmount subscriptionStatus planType')
             .sort({ createdAt: -1 });
 
         res.json(locations);

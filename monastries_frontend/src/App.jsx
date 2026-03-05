@@ -20,6 +20,7 @@ import MyLocations from './pages/MyLocations'
 import LocationDetail from './pages/LocationDetail'
 import BecomeGuide from './pages/BecomeGuide'
 import MyGuideProfile from './pages/MyGuideProfile'
+import ListBusiness from './pages/ListBusiness'
 import NotFound from './pages/NotFound'
 import './App.css'
 
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="/my-locations" element={<MyLocations />} />
           <Route path="/become-guide" element={<BecomeGuide />} />
           <Route path="/my-guide-profile" element={<MyGuideProfile />} />
+          <Route path="/list-business" element={<ListBusiness />} />
           <Route path="/contribute" element={<Contribute />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/admin" element={<Admin />} />
