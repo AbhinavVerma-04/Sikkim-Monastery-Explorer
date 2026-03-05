@@ -66,10 +66,10 @@ const userSchema = new mongoose.Schema({
     skills:{
         type: [String],
     },
-    // Role for admin access
+    // Role for admin access and guide
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: ['user', 'admin', 'guide'],
         default: 'user'
     },
     // Contribution points system

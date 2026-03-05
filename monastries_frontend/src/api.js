@@ -69,3 +69,56 @@ export const locationAPI = {
   findNearby: (coordinates, maxDistance = 5000) =>
     api.post('/location/find-nearby', { coordinates, maxDistance }),
 }
+
+// ===== Guide APIs =====
+
+export const guideAPI = {
+  // Create a new guide profile
+  createGuideProfile: (profileData) =>
+    api.post('/guide/create', profileData),
+
+  // Subscribe as a guide
+  subscribeAsGuide: (subscriptionData) =>
+    api.post('/guide/subscribe', subscriptionData),
+
+  // Get my guide profile
+  getMyProfile: () =>
+    api.get('/guide/my-profile'),
+
+  // Update guide profile
+  updateProfile: (data) =>
+    api.patch('/guide/update', data),
+
+  // Get guides for a specific monastery
+  getGuidesByMonastery: (monasteryId) =>
+    api.get(`/guide/monastery/${monasteryId}`),
+
+  // Get specific guide details
+  getGuideById: (id) =>
+    api.get(`/guide/${id}`),
+
+  // Add review for a guide
+  addReview: (id, reviewData) =>
+    api.post(`/guide/${id}/review`, reviewData),
+
+  // Get my subscription details
+  getMySubscription: () =>
+    api.get('/guide/subscription/details'),
+
+  // Renew subscription
+  renewSubscription: () =>
+    api.post('/guide/subscription/renew'),
+
+  // Cancel subscription
+  cancelSubscription: () =>
+    api.post('/guide/subscription/cancel'),
+
+  // Delete guide profile
+  deleteProfile: () =>
+    api.delete('/guide/delete'),
+
+  // Get all active guides
+  getAllGuides: () =>
+    api.get('/guide/all'),
+}
+

@@ -18,6 +18,8 @@ import Admin from './pages/Admin'
 import MyContributions from './pages/MyContributions'
 import MyLocations from './pages/MyLocations'
 import LocationDetail from './pages/LocationDetail'
+import BecomeGuide from './pages/BecomeGuide'
+import MyGuideProfile from './pages/MyGuideProfile'
 import NotFound from './pages/NotFound'
 import './App.css'
 
@@ -39,6 +41,8 @@ export default function App() {
           <Route path="/bookings" element={<Bookings />} />
           <Route path="/my-contributions" element={<MyContributions />} />
           <Route path="/my-locations" element={<MyLocations />} />
+          <Route path="/become-guide" element={<BecomeGuide />} />
+          <Route path="/my-guide-profile" element={<MyGuideProfile />} />
           <Route path="/contribute" element={<Contribute />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/admin" element={<Admin />} />

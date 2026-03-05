@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { MapPin, Star, Calendar, Hotel, Compass, BookOpen, Users, Church, Sparkles, Mountain, Clock, AlertTriangle } from 'lucide-react'
+import { MapPin, Star, Calendar, Hotel, Compass, BookOpen, Users, Church, Sparkles, Mountain, Clock, AlertTriangle, UserCircle, Phone, Mail, DollarSign, Award, Briefcase, Languages } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { api, getErrorMessage, locationAPI } from '../api'
+import { api, getErrorMessage, locationAPI, guideAPI } from '../api'
 import { useAuth } from '../context/AuthContext'
 import { validateBooking } from '../utils/validation'
 import { Layout } from '../components/Layout'
@@ -33,6 +33,7 @@ export default function MonasteryDetail() {
   const [monastery, setMonastery] = useState(null)
   const [travelGuide, setTravelGuide] = useState(null)
   const [userLocations, setUserLocations] = useState([])
+  const [guides, setGuides] = useState([])
   const [loading, setLoading] = useState(true)
   const [guideLoading, setGuideLoading] = useState(false)
   const [bookingForm, setBookingForm] = useState({ visitDate: '', numberOfPeople: 1, contactNumber: '' })
@@ -71,7 +72,7 @@ export default function MonasteryDetail() {
     async function fetchUserLocations() {
       try {
         const response = await locationAPI.getAllActiveLocations()
-        if (!cancelled) setUserLocations(response.data || [])
+        if (!cancelled) setUserLocations(response.data?.data || response.data || [])
       } catch (error) {
         console.error('Failed to fetch user locations:', error)
       }
@@ -79,6 +80,21 @@ export default function MonasteryDetail() {
     fetchUserLocations()
     return () => { cancelled = true }
   }, [])
+
+  useEffect(() => {
+    if (!id) return
+    let cancelled = false
+    async function fetchGuides() {
+      try {
+        const response = await guideAPI.getGuidesByMonastery(id)
+        if (!cancelled) setGuides(response.data?.data || [])
+      } catch (error) {
+        console.error('Failed to fetch guides:', error)
+      }
+    }
+    fetchGuides()
+    return () => { cancelled = true }
+  }, [id])
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault()
@@ -495,6 +511,99 @@ export default function MonasteryDetail() {
           )}
           {!travelGuide && !guideLoading && <p className="text-stone-500 text-sm">Travel guide not available for this monastery.</p>}
         </section>
+
+        {/* Tourist Guides Section */}
+        {guides && guides.length > 0 && (
+          <section className="mb-8">
+            <h2 className="font-heading text-xl font-bold text-amber-50 mb-4 flex items-center gap-2">
+              <UserCircle className="w-5 h-5" /> Available Tourist Guides
+            </h2>
+            <p className="text-stone-400 text-sm mb-4">
+              Connect with verified local guides who specialize in this monastery and surrounding areas.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {guides.map((guide) => (
+                <div key={guide._id} className="glass rounded-2xl p-5 border border-amber-900/30 hover:border-amber-700/50 transition">
+                  <div className="flex items-start gap-4">
+                    {guide.profilePhoto ? (
+                      <img
+                        src={guide.profilePhoto}
+                        alt={guide.guideName}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-amber-500"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-amber-900/50 flex items-center justify-center border-2 border-amber-500">
+                        <UserCircle className="w-10 h-10 text-amber-300" />
+                      </div>
+                    )}
+                    
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-1">
+                        <h3 className="font-semibold text-amber-100">{guide.guideName}</h3>
+                        {guide.isVerified && (
+                          <span className="flex items-center gap-1 text-xs bg-green-900/50 text-green-100 px-2 py-0.5 rounded-full border border-green-700/50">
+                            <Award className="w-3 h-3" /> Verified
+                          </span>
+                        )}
+                      </div>
+                      
+                      {guide.rating?.average > 0 && (
+                        <div className="flex items-center gap-1 mb-2">
+                          <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                          <span className="text-sm text-amber-300">{guide.rating.average.toFixed(1)}</span>
+                          <span className="text-xs text-stone-500">({guide.rating.count} reviews)</span>
+                        </div>
+                      )}
+                      
+                      <p className="text-sm text-stone-300 mb-3 line-clamp-2">{guide.bio}</p>
+                      
+                      <div className="space-y-1 text-xs text-stone-400 mb-3">
+                        <p className="flex items-center gap-1">
+                          <Briefcase className="w-3 h-3" /> {guide.experience} years experience
+                        </p>
+                        {guide.languages && guide.languages.length > 0 && (
+                          <p className="flex items-center gap-1">
+                            <Languages className="w-3 h-3" /> {guide.languages.slice(0, 3).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                      
+                      {guide.pricing && (
+                        <div className="flex items-center gap-2 mb-3 text-xs">
+                          <span className="px-2 py-1 rounded bg-stone-900/60 border border-stone-700/50 text-stone-300">
+                            <DollarSign className="w-3 h-3 inline" />₹{guide.pricing.hourlyRate}/hr
+                          </span>
+                          <span className="px-2 py-1 rounded bg-stone-900/60 border border-stone-700/50 text-stone-300">
+                            ₹{guide.pricing.fullDayRate}/day
+                          </span>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-1 text-xs">
+                        {guide.contactInfo?.phone && (
+                          <a
+                            href={`tel:${guide.contactInfo.phone}`}
+                            className="flex items-center gap-1 text-amber-300 hover:text-amber-200"
+                          >
+                            <Phone className="w-3 h-3" /> {guide.contactInfo.phone}
+                          </a>
+                        )}
+                        {guide.contactInfo?.email && (
+                          <a
+                            href={`mailto:${guide.contactInfo.email}`}
+                            className="flex items-center gap-1 text-amber-300 hover:text-amber-200"
+                          >
+                            <Mail className="w-3 h-3" /> {guide.contactInfo.email}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Book visit */}
         <section>
